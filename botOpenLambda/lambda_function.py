@@ -1,14 +1,36 @@
 import sys
-sys.path.insert(0, 'src/vendor')
+sys.path.insert(0, 'src/vendor/')
 
 import os
-os.environ["LD_LIBRARY_PATH"] = "./src/vendor/psycopg2_binary.libs/"
-
 import json
 import psycopg2
 
 def lambda_handler(event, context):
+    database = os.environ["PG_DB"]
+    host = os.environ["PG_HOST"]
+    user = os.environ["PG_USER"]
+    password = os.environ["PG_PASSWORD"]
+    table = os.environ["PG_TABLE"]
+
     return {
         "statusCode": 200,
-        "body": json.dumps({"message": "Hello from trader!"})
+        "body": json.dumps({"open": get_open_trades(database, host, user, password, table)})
     }
+
+def sort_trades(trades: list[dict]):
+    return list(reversed(sorted(trades, key=lambda x: x["opendate"])))
+
+def get_open_trades(database, host, user, password, table):
+    keys = ("id", "symbol", "status", "prediction", "opendate", "openprice", "closedate", "closeprice", "type")
+    with create_connection(database, host, user, password) as connection:
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT * FROM {table} WHERE status = TRUE")
+        return sort_trades([
+            {k: v for k, v in zip(keys, values)} for values in cursor.fetchall()
+        ])
+    
+def create_connection(database, host, user, password) -> psycopg2.extensions.connection:
+    return psycopg2.connect(database=database,
+                            host=host,
+                            user=user,
+                            password=password)
