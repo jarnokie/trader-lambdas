@@ -30,7 +30,7 @@ jobs:
 
       - name: zip
         working-directory: ${{ inputs.function_dir }}
-        run: zip -r ../bundle.zip ./
+        run: zip -r ../bundle.zip ./ -x __pycache__/ __pycache__/*
 
       - name: default deploy
         uses: appleboy/lambda-action@v0.1.9
