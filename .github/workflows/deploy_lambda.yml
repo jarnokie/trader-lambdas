@@ -1,0 +1,42 @@
+name: Deploy lambda
+
+# Controls when the workflow will run
+on:
+  workflow_call:
+    inputs:
+        function_name:
+            required: true
+            type: string
+        function_dir:
+            required: true
+            type: string
+    secrets:
+        aws_key_id:
+            required: true
+        aws_secret:
+            required: true
+        aws_region:
+            required: true
+
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: zip
+        working-directory: ${{ inputs.function_dir }}
+        run: zip -r ../bundle.zip ./
+
+      - name: default deploy
+        uses: appleboy/lambda-action@v0.1.9
+        with:
+          aws_access_key_id: ${{ secrets.aws_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret }}
+          aws_region: ${{ secrets.aws_region }}
+          function_name: ${{ inputs.function_name }}
+          zip_file: bundle.zip
