@@ -14,7 +14,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps({"open": get_open_trades(database, host, user, password, table)})
+        "body": json.dumps({"open": get_open_trades(database, host, user, password, table)}, sort_keys=True, default=str)
     }
 
 def sort_trades(trades: list[dict]):
