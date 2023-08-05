@@ -1,0 +1,16 @@
+name: Deploy lambda
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        uses: ./.github/workflows/deploy_lambda.yml
+        with:
+            function_name: "traderBotOpen"
+            function_dir: "./botOpenLambda"

@@ -10,13 +10,6 @@ on:
         function_dir:
             required: true
             type: string
-    secrets:
-        aws_key_id:
-            required: true
-        aws_secret:
-            required: true
-        aws_region:
-            required: true
 
 jobs:
   build:
@@ -35,8 +28,8 @@ jobs:
       - name: default deploy
         uses: appleboy/lambda-action@v0.1.9
         with:
-          aws_access_key_id: ${{ secrets.aws_key_id }}
-          aws_secret_access_key: ${{ secrets.aws_secret }}
-          aws_region: ${{ secrets.aws_region }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
           function_name: ${{ inputs.function_name }}
           zip_file: bundle.zip
