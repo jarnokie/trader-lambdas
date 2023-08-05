@@ -14,3 +14,4 @@ jobs:
         with:
             function_name: "traderBotOpen"
             function_dir: "./botOpenLambda"
+        secrets: inherit
