@@ -2,7 +2,7 @@ import pytest
 
 from test_utils import get_table_name, create_trades_table, execute_sql, get_database_config
 
-from lambda_function import get_open_trades
+from botClosedLambda import get_closed_trades
 
 table_name = ""
 
@@ -19,14 +19,14 @@ def setup_test(request):
     create_trades_table(table_name)
     request.addfinalizer(end_test)
 
-def test_get_data():
+def test_closed_data():
     """Test the get_open_trades function."""
     global table_name
     db_config = get_database_config()
-    open_trades = get_open_trades(db_config["PG_DB"], db_config["PG_HOST"], db_config["PG_USER"], db_config["PG_PASSWORD"], table_name)
+    open_trades = get_closed_trades(db_config["PG_DB"], db_config["PG_HOST"], db_config["PG_USER"], db_config["PG_PASSWORD"], table_name)
     # Test data set contains 8 trades
     # All of the should NOT have closedate or closeprice set
-    assert len(open_trades) == 8
+    assert len(open_trades) == 55
     for trade in open_trades:
-        assert trade["closedate"] is None
-        assert trade["closeprice"] is None
+        assert trade["closedate"] is not None
+        assert trade["closeprice"] is not None

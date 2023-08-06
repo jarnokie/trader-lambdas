@@ -1,0 +1,1 @@
+from .lambda_function import get_closed_trades
