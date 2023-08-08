@@ -1,6 +1,8 @@
 import sys
 sys.path.insert(0, 'src/vendor/')
 
+from typing import Callable
+
 import json
 import requests
 import pandas
@@ -17,11 +19,11 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": json.dumps({
             "symbol": symbol,
-            "data": to_json(get_from_quickfs(symbol)[0])
+            "data": to_json(get_from_quickfs(lambda: do_request(symbol))[0])
             })
     }
 
-def get_from_quickfs(symbol: str) -> tuple[pandas.DataFrame, dict]:
+def do_request(symbol: str) -> dict:
     url = f"https://api.quickfs.net/stocks/{symbol}/ovr/Annual/?sortOrder=ASC&maxPeriods=11"
     headers = {
         "Content-Type": "application/json",
@@ -30,11 +32,14 @@ def get_from_quickfs(symbol: str) -> tuple[pandas.DataFrame, dict]:
     r = requests.get(url, headers=headers)
     if r.status_code != 200:
         r.raise_for_status()
-    j = r.json()
+    return r.json()
+
+def get_from_quickfs(request_f: Callable) -> tuple[pandas.DataFrame, dict]:
+    j = request_f()
     return pandas.read_html(j["datasets"]["ovr"], header=0, index_col=0)[0], j["datasets"]["metadata"]
 
 def to_json(quickfs_df: pandas.DataFrame) -> dict[dict]:
     data = {}
     for year in quickfs_df.columns:
-        data[year] = {k: v for k, v in data[year].items() if v is not None}
+        data[year] = {k: v for k, v in data.items() if v is not None}
     return data
