@@ -5,7 +5,7 @@ from typing import Callable
 
 import json
 import requests
-import pandas
+from lxml import html
 
 def lambda_handler(event, context):
     if "pathParameters" in event and "symbol" in event["pathParameters"]:
@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": json.dumps({
             "symbol": symbol,
-            "data": to_json(get_from_quickfs(lambda: do_request(symbol))[0])
+            "data": get_from_quickfs(lambda: do_request(symbol))[0]
             })
     }
 
@@ -34,12 +34,32 @@ def do_request(symbol: str) -> dict:
         r.raise_for_status()
     return r.json()
 
-def get_from_quickfs(request_f: Callable) -> tuple[pandas.DataFrame, dict]:
+def get_from_quickfs(request_f: Callable) -> tuple[dict, dict]:
     j = request_f()
-    return pandas.read_html(j["datasets"]["ovr"], header=0, index_col=0)[0], j["datasets"]["metadata"]
+    return parse_html_table_to_dict(j["datasets"]["ovr"]), j["datasets"]["metadata"]
 
-def to_json(quickfs_df: pandas.DataFrame) -> dict[dict]:
-    data = {}
-    for year in quickfs_df.columns:
-        data[year] = {k: v for k, v in data.items() if v is not None}
-    return data
+
+def parse_html_table_to_dict(table_html):
+    tree = html.fromstring(table_html)
+    rows = tree.xpath('//tr')
+    
+    if not rows:
+        return None
+    
+    years = [header.text_content().strip() for header in rows[0].xpath('td|th')][1:]
+    years = [int(y) for y in years]
+    row_headers = []
+    data = []
+    
+    for row in rows[1:]:
+        row_data = [cell.text_content().strip() for cell in row.xpath('td')]
+        if row_data:
+            row_headers.append(row_data[0])
+            data.append(row_data[1:])
+    
+    result = {}
+
+    for row_title, row in zip(row_headers, data):
+        result[row_title] = dict(zip(years, row))
+    
+    return result

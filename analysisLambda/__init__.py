@@ -1,1 +1,1 @@
-from .lambda_function import get_from_quickfs, to_json
+from .lambda_function import get_from_quickfs

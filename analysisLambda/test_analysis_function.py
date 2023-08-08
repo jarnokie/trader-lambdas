@@ -1,6 +1,9 @@
 import pickle
 
-from analysisLambda import get_from_quickfs, to_json
+try:
+    from analysisLambda import get_from_quickfs
+except ImportError:
+    from lambda_function import get_from_quickfs
 
 def load_test_json():
     with open("analysis.pkl", "rb") as f:
@@ -8,6 +11,9 @@ def load_test_json():
 
 def test_scrape_to_json():
     data, ks = get_from_quickfs(load_test_json)
-    j = to_json(data)
     assert "pb" in ks
-    assert all([str(y) in j.keys() for y in range(2013, 2023)])
+    for values in data.values():
+        assert all(year in values.keys() for year in range(2013, 2023))
+
+if __name__ == "__main__":
+    test_scrape_to_json()
