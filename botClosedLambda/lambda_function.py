@@ -21,6 +21,7 @@ def sort_trades(trades: list[dict]):
     return list(reversed(sorted(trades, key=lambda x: x["opendate"])))
 
 def get_closed_trades(database, host, user, password, table):
+    # TODO add time cutoff so that only trades within 30 days are returned
     keys = ("id", "symbol", "status", "prediction", "opendate", "openprice", "closedate", "closeprice", "type")
     with create_connection(database, host, user, password) as connection:
         cursor = connection.cursor()
