@@ -7,6 +7,7 @@ import json
 import requests
 from lxml import html
 
+
 def lambda_handler(event, context):
     if "pathParameters" in event and "symbol" in event["pathParameters"]:
         symbol = event["pathParameters"]["symbol"]
@@ -15,13 +16,16 @@ def lambda_handler(event, context):
             "statusCode": 400,
             "body": json.dumps({"message": "symbol is required"})
         }
+    fs, ks = get_from_quickfs(lambda: do_request(symbol))
     return {
         "statusCode": 200,
         "body": json.dumps({
             "symbol": symbol,
-            "data": get_from_quickfs(lambda: do_request(symbol))[0]
+            "fs": fs,
+            "ks": ks
             })
     }
+
 
 def do_request(symbol: str) -> dict:
     url = f"https://api.quickfs.net/stocks/{symbol}/ovr/Annual/?sortOrder=ASC&maxPeriods=11"
@@ -33,6 +37,7 @@ def do_request(symbol: str) -> dict:
     if r.status_code != 200:
         r.raise_for_status()
     return r.json()
+
 
 def get_from_quickfs(request_f: Callable) -> tuple[dict, dict]:
     j = request_f()
