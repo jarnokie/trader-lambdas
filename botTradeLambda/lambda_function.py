@@ -3,42 +3,37 @@ import sys
 sys.path.insert(0, "src/vendor/")
 
 import os
-import json
-
-import psycopg2
 
 import torch
 import torch.nn.functional as F
 
+from alpaca.trading import TradingClient
+
 try:
-    from helpers import predict
+    from helpers import predict, open_trades_positions
 except ImportError:
-    from .helpers import predict
+    from .helpers import predict, open_trades_positions
 
 MODEL_FILE = "model.pt"
 
 
 def lambda_handler(event, context):
-    database = os.environ["PG_DB"]
-    host = os.environ["PG_HOST"]
-    user = os.environ["PG_USER"]
-    password = os.environ["PG_PASSWORD"]
-    table = os.environ["PG_TABLE"]
     alpaca_key = os.environ["ALPACA_KEY"]
     alpaca_secret = os.environ["ALPACA_SECRET"]
+    client = TradingClient(alpaca_key, alpaca_secret)
 
     model = Model()
     model.load_state_dict(torch.load(MODEL_FILE, map_location="cpu"))
+    model.eval()
+
     predictions = predict(model, alpaca_key, alpaca_secret)
+    print(predictions)
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"todo": "todo"}, sort_keys=True, default=str),
-    }
+    closed = client.close_all_positions(cancel_orders=True)
+    print(closed)
 
-
-def create_connection(database, host, user, password) -> psycopg2.extensions.connection:
-    return psycopg2.connect(database=database, host=host, user=user, password=password)
+    orders = open_trades_positions(client, predictions, trading_limit=1.4)
+    print(orders)
 
 
 class Model(torch.nn.Module):

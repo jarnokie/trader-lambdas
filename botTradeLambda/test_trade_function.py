@@ -3,24 +3,12 @@ import os
 import pytest
 import datetime
 
-import numpy as np
 import torch
 
 try:
     from botTradeLambda import Model, get_weekday, predict, TICKERS
 except ImportError:
     from lambda_function import Model, get_weekday, predict, TICKERS
-
-table_name = ""
-
-
-def end_test():
-    pass
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_test(request):
-    pass
 
 
 def test_weekday():

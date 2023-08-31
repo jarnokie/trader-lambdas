@@ -32,7 +32,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     strategy:
       matrix:
-        lambda_name: ["traderBotOpen", "traderBotClosed", "traderAnalysis"]
+        lambda_name: ["traderBotOpen", "traderBotClosed", "traderAnalysis", "traderDoTrades"]
         include:
           - lambda_name: "traderBotOpen"
             directory: "./botOpenLambda"
@@ -40,6 +40,8 @@ jobs:
             directory: "./botClosedLambda"
           - lambda_name: "traderAnalysis"
             directory: "./analysisLambda"
+          - lambda_name: "traderDoTrades"
+            directory: "./botTradeLambda"
             
     uses: ./.github/workflows/deploy_lambda.yml
     with:

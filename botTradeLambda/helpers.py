@@ -4,9 +4,13 @@ import numpy as np
 import pytz
 
 from alpaca.data import StockHistoricalDataClient
+from alpaca.trading import TradingClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 from alpaca.data.models.bars import BarSet
+from alpaca.trading.requests import MarketOrderRequest
+from alpaca.trading.enums import OrderSide, TimeInForce
+from alpaca.trading.models import Order
 
 TICKERS = {
     "aapl": {"shares": 15730000000},
@@ -132,3 +136,22 @@ def predict(model: torch.nn.Module, alpaca_key: str, alpaca_secret: str) -> dict
     price_tensors = torch.from_numpy(np.array(price_tensors)).to(torch.float32)
     yp = model(price_tensors, weekday_tensors, daysofyear_tensors)
     return {ticker: prediction[0] for ticker, prediction in zip(tickers, yp.tolist())}
+
+
+def open_trades_positions(
+    client: TradingClient,
+    predictions: dict[str, float],
+    trading_limit: float,
+    notional=100.0,
+) -> list[Order]:
+    orders = []
+    for symbol, prediction in predictions.items():
+        if prediction > trading_limit:
+            order_data = MarketOrderRequest(
+                symbol=symbol.upper(),
+                notional=notional,
+                side=OrderSide.BUY,
+                time_in_force=TimeInForce.DAY,
+            )
+            orders.append(client.submit_order(order_data))
+    return orders
