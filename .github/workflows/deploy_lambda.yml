@@ -5,11 +5,14 @@ on:
   workflow_call:
     inputs:
         function_name:
-            required: true
-            type: string
+          required: true
+          type: string
         function_dir:
-            required: true
-            type: string
+          required: true
+          type: string
+        install_torch:
+          required: false
+          type: boolean
 
 jobs:
   build:
@@ -27,6 +30,10 @@ jobs:
       - name: install dependencies
         working-directory: ${{ inputs.function_dir }}
         run: "pip install -t src/vendor -r aws_requirements.txt --platform manylinux2014_x86_64 --python-version 3.10 --implementation cp --only-binary=:all: --upgrade"
+
+      - name: install torch
+        if: ${{ inputs.install_torch }}
+        run: "pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu"
 
       - name: zip
         working-directory: ${{ inputs.function_dir }}

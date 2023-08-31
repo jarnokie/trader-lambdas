@@ -36,17 +36,22 @@ jobs:
         include:
           - lambda_name: "traderBotOpen"
             directory: "./botOpenLambda"
+            install_torch: false
           - lambda_name: "traderBotClosed"
             directory: "./botClosedLambda"
+            install_torch: false
           - lambda_name: "traderAnalysis"
             directory: "./analysisLambda"
+            install_torch: false
           - lambda_name: "traderDoTrades"
             directory: "./botTradeLambda"
+            install_torch: true
             
     uses: ./.github/workflows/deploy_lambda.yml
     with:
         function_name: ${{ matrix.lambda_name }}
         function_dir: ${{ matrix.directory }}
+        install_torch: ${{ matrix.install_torch }}
     secrets: inherit
 
     
