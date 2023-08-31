@@ -108,6 +108,7 @@ def get_prices(symbols: dict, alpaca_key: str, alpaca_secret: str) -> dict:
         result[symbol] = np.array(result[symbol])
     return result
 
+
 def predict(model: torch.nn.Module, alpaca_key: str, alpaca_secret: str) -> dict:
     now = datetime.datetime.now(pytz.timezone("America/New_York"))
     weekday = get_weekday(now)

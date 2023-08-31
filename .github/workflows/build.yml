@@ -24,6 +24,8 @@ jobs:
           PG_DB: ${{ secrets.TEST_PG_DB }}
           PG_PASSWORD: ${{ secrets.TEST_PG_PASSWORD }}
           PG_USER: ${{ secrets.TEST_PG_USER }}
+          ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
+          ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
 
   deploy:
     needs: test
@@ -44,3 +46,5 @@ jobs:
         function_name: ${{ matrix.lambda_name }}
         function_dir: ${{ matrix.directory }}
     secrets: inherit
+
+    
