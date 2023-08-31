@@ -115,6 +115,11 @@ def get_prices(symbols: dict, alpaca_key: str, alpaca_secret: str) -> dict:
 
 def predict(model: torch.nn.Module, alpaca_key: str, alpaca_secret: str) -> dict:
     now = datetime.datetime.now(pytz.timezone("America/New_York"))
+    if not is_market_open(
+        now,
+        list(map(lambda x: datetime.datetime.strptime(x, "%Y-%m-%d"), HOLIDAYS.keys())),
+    ):
+        return {}
     weekday = get_weekday(now)
     dayofyear = get_daysofyear(now)
     tickers: list[str] = list(TICKERS.keys())
@@ -138,6 +143,13 @@ def predict(model: torch.nn.Module, alpaca_key: str, alpaca_secret: str) -> dict
     return {ticker: prediction[0] for ticker, prediction in zip(tickers, yp.tolist())}
 
 
+def is_market_open(date: datetime.datetime, holidays: list[datetime.datetime]) -> bool:
+    if date.weekday() > 4 or _strip_time(date) in holidays:
+        print("Closed day")
+        return False
+    return (date.hour > 9 or (date.hour == 9 and date.minute >= 30)) and date.hour < 16
+
+
 def open_trades_positions(
     client: TradingClient,
     predictions: dict[str, float],
@@ -151,7 +163,7 @@ def open_trades_positions(
                 symbol=symbol.upper(),
                 notional=notional,
                 side=OrderSide.BUY,
-                time_in_force=TimeInForce.DAY,
+                time_in_force=TimeInForce.IOC,
             )
             orders.append(client.submit_order(order_data))
     return orders
