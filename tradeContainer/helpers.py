@@ -113,9 +113,9 @@ def get_prices(symbols: dict, alpaca_key: str, alpaca_secret: str) -> dict:
     return result
 
 
-def predict(model: torch.nn.Module, alpaca_key: str, alpaca_secret: str) -> dict:
+def predict(model: torch.nn.Module, alpaca_key: str, alpaca_secret: str, force=False) -> dict:
     now = datetime.datetime.now(pytz.timezone("America/New_York"))
-    if not is_market_open(
+    if not force and not is_market_open(
         now,
         list(map(lambda x: datetime.datetime.strptime(x, "%Y-%m-%d"), HOLIDAYS.keys())),
     ):

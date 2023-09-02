@@ -1,12 +1,11 @@
 import os
 
-import pytest
 import datetime
 
 import torch
 
 try:
-    from botTradeLambda import Model, get_weekday, predict, TICKERS
+    from tradeContainer import Model, get_weekday, predict, TICKERS
 except ImportError:
     from lambda_function import Model, get_weekday, predict, TICKERS
 
@@ -30,8 +29,8 @@ def test_predict():
     alpaca_key = os.environ["ALPACA_KEY"]
     alpaca_secret = os.environ["ALPACA_SECRET"]
     model = Model()
-    model.load_state_dict(torch.load("botTradeLambda/model.pt", map_location="cpu"))
-    prediction = predict(model, alpaca_key, alpaca_secret)
+    model.load_state_dict(torch.load("tradeContainer/model.pt", map_location="cpu"))
+    prediction = predict(model, alpaca_key, alpaca_secret, force=True)
     for ticker in TICKERS:
         assert ticker in prediction.keys()
-        assert type(prediction[ticker]) == float
+        assert isinstance(prediction[ticker], float)

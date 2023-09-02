@@ -44,9 +44,6 @@ jobs:
           - lambda_name: "traderAnalysis"
             directory: "./analysisLambda"
             install_torch: false
-          - lambda_name: "traderDoTrades"
-            directory: "./botTradeLambda"
-            install_torch: true
             
     uses: ./.github/workflows/deploy_lambda.yml
     with:

@@ -34,7 +34,7 @@ jobs:
       - name: install torch
         if: ${{ inputs.install_torch }}
         working-directory: ${{ inputs.function_dir }}
-        run: "pip install -t src/vendor torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu --python-version 3.10 --implementation cp --only-binary=:all: --upgrade"
+        run: "pip install -t src/vendor torch --index-url https://download.pytorch.org/whl/cpu --python-version 3.10 --implementation cp --only-binary=:all: --upgrade"
 
       - name: zip
         working-directory: ${{ inputs.function_dir }}
