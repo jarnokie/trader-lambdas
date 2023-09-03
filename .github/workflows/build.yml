@@ -70,14 +70,14 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
-      - name: Build container
+      - name: Build image
         working-directory: ./tradeContainer
         id: build-image
         run: docker build -t trader:${IMAGE_TAG} .
-      - name: Build container
+      - name: Push image
         id: push-image
         run: |
-          docker tag -trader:${IMAGE_TAG} ${ECR_REGISTRY}:${IMAGE_TAG}
+          docker tag trader:${IMAGE_TAG} ${ECR_REGISTRY}:${IMAGE_TAG}
           docker push ${ECR_REGISTRY}:${IMAGE_TAG}
   
 
