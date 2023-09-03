@@ -61,30 +61,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            tradecontainer:
-              - 'tradeContainer/**'
       - name: Configure AWS credentials
-        if: steps.changes.outputs.tradecontainer == 'true'
         uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Login to Amazon ECR
-        if: steps.changes.outputs.tradecontainer == 'true'
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
       - name: Build container
-        if: steps.changes.outputs.tradecontainer == 'true'
         working-directory: ./tradeContainer
         id: build-image
         run: docker build -t trader:${IMAGE_TAG} .
       - name: Build container
-        if: steps.changes.outputs.tradecontainer == 'true'
         id: push-image
         run: |
           docker tag -trader:${IMAGE_TAG} ${ECR_REGISTRY}:${IMAGE_TAG}
