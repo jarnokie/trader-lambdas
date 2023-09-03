@@ -33,7 +33,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     strategy:
       matrix:
-        lambda_name: ["traderBotOpen", "traderBotClosed", "traderAnalysis", "traderDoTrades"]
+        lambda_name: ["traderBotOpen", "traderBotClosed", "traderAnalysis"]
         include:
           - lambda_name: "traderBotOpen"
             directory: "./botOpenLambda"
