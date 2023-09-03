@@ -1,4 +1,5 @@
 import os
+import json
 
 import torch
 import torch.nn.functional as F
@@ -30,6 +31,11 @@ def lambda_handler(event, context):
 
     orders = open_trades_positions(client, predictions, trading_limit=1.4)
     print(orders)
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(predictions)
+    }
 
 
 class Model(torch.nn.Module):
